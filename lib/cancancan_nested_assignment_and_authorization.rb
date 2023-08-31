@@ -6,7 +6,7 @@ require_relative 'cancancan/version'
 # ActiveRecord::Base.send(:include, Serializer::Concern)
 
 module CanCanCan
-  module NestedAuth
+  module NestedAssignmentAndAuthorization
     # config src: http://lizabinante.com/blog/creating-a-configurable-ruby-gem/
     class << self
       attr_accessor :configuration

@@ -166,7 +166,7 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
         }],
       }
 
-      CanCanCan::NestedAuth.configure do |config|
+      CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
         config.silence_raised_errors = true
       end
 
@@ -325,7 +325,7 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
         }],
       }
 
-      CanCanCan::NestedAuth.configure do |config|
+      CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
         config.use_smart_nested_authorizations = false
       end
 
@@ -422,7 +422,7 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
         }],
       }
 
-      CanCanCan::NestedAuth.configure do |config|
+      CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
         config.silence_raised_errors = true
       end
 
@@ -471,7 +471,7 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
         ],
       }
 
-      CanCanCan::NestedAuth.configure do |config|
+      CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
         config.use_smart_nested_authorizations = true
       end
 

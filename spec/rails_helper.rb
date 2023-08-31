@@ -30,7 +30,7 @@ RSpec.configure do |config|
   end
   config.after(:each) do
     DatabaseCleaner.clean
-    CanCanCan::NestedAuth.reset
+    CanCanCan::NestedAssignmentAndAuthorization.reset
   end
   config.infer_spec_type_from_file_location!
 end

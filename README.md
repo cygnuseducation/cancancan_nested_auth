@@ -7,7 +7,7 @@ Create init file: config/initializers/cancancan_nested_auth.rb and populate it w
 ```
 require "cancancan_nested_auth"
 # default values shown
-CanCanCan::NestedAuth.configure do |config|
+CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
   # Allows for stopping unauthorized actions without raising errors
   # - Will let root object (and valid, other nested objects) save, even if an invalid nested object exists, if true
   config.silence_raised_errors = false
@@ -22,6 +22,7 @@ end
 
 ## Example usage
 ```
+require 'cancancan_nested_assignment_and_authorization'
 class VehiclesController < ActionController::Base
   def update
     authorize! :update, Vehicle

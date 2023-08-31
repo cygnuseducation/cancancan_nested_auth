@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
     "lib/cancancan/version.rb",
     "lib/cancancan/configuration.rb",
     "lib/cancancan/services/assignment_and_authorization.rb",
-    "lib/cancancan/cancancan_nested_auth.rb",
+    "lib/cancancan_nested_assignment_and_authorization.rb",
   ]
   s.require_paths = ["lib"]
   s.homepage = 'https://github.com/danabr75/cancancan_nested_auth'

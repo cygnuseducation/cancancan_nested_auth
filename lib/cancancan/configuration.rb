@@ -1,5 +1,5 @@
 module CanCanCan
-  module NestedAuth
+  module NestedAssignmentAndAuthorization
     class Configuration
       attr_accessor :silence_raised_errors, :use_smart_nested_authorizations
 

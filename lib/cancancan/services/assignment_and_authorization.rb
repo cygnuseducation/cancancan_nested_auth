@@ -15,14 +15,17 @@ module CanCanCan
     def initialize(current_ability, action_name, parent_object, params)
       @ability = current_ability
       @parent_object = parent_object
-      @params = params.permit!.to_h
+      @params = params
+      if @params.kind_of?(ActionController::Parameters)
+        @params = @params.permit!.to_h
+      end
       @action_name = action_name.to_sym
     end
 
     def call
       # Pre-assignment auth check
       first_authorize = @ability.can?(@action_name, @parent_object)
-      unless first_authorize || CanCanCan::NestedAuth.configuration.silence_raised_errors
+      unless first_authorize || CanCanCan::NestedAssignmentAndAuthorization.configuration.silence_raised_errors
         raise CanCan::AccessDenied.new("Not authorized!", @action_name, @parent_object)
       end
 
@@ -57,7 +60,7 @@ module CanCanCan
         end
       end
 
-      unless second_authorize || CanCanCan::NestedAuth.configuration.silence_raised_errors
+      unless second_authorize || CanCanCan::NestedAssignmentAndAuthorization.configuration.silence_raised_errors
         raise CanCan::AccessDenied.new("Not authorized!", @action_name, @parent_object)
       end
 
@@ -143,14 +146,14 @@ module CanCanCan
       end
       child ||= parent.send(nested_attrib_key).find_or_initialize_by(assoc_primary_key => attribs[assoc_primary_key])
 
-      child_action = @action_name if !CanCanCan::NestedAuth.configuration.use_smart_nested_authorizations
+      child_action = @action_name if !CanCanCan::NestedAssignmentAndAuthorization.configuration.use_smart_nested_authorizations
       child_action ||= :destroy if reflection.options[:allow_destroy] && ['1', 1, true].include?(attribs[:_destroy])
       child_action ||= :create if child.new_record?
       child_action ||= :update
 
       # Pre-assignment auth check
       first_authorize = @ability.can?(child_action, child)
-      unless first_authorize || CanCanCan::NestedAuth.configuration.silence_raised_errors
+      unless first_authorize || CanCanCan::NestedAssignmentAndAuthorization.configuration.silence_raised_errors
         # TODO if debug
         # puts "CanCan::AccessDenied.new('Not authorized!', #{child_action}, #{child.class.name})"
         raise CanCan::AccessDenied.new("Not authorized!", child_action, child)
@@ -174,7 +177,7 @@ module CanCanCan
         end
       end
 
-      unless second_authorize || CanCanCan::NestedAuth.configuration.silence_raised_errors
+      unless second_authorize || CanCanCan::NestedAssignmentAndAuthorization.configuration.silence_raised_errors
         raise CanCan::AccessDenied.new("Not authorized!", child_action, child)
       end
 
