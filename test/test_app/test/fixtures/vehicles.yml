@@ -1,0 +1,25 @@
+---
+vehicles_001:
+  id: 1
+  user_id: 1
+  make: "Dodge"
+  model: "Caraven"
+  type: "Car"
+vehicles_002:
+  id: 2
+  user_id: 1
+  make: "Tesla"
+  model: "Roadster"
+  type: "Car"
+vehicles_003:
+  id: 3
+  user_id: 1
+  make: "Ford"
+  model: "Firebird"
+  type: "Car"
+vehicles_004:
+  id: 4
+  user_id: 1
+  make: "Honda"
+  model: "Rebel"
+  type: "Motorcycle"

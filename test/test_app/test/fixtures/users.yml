@@ -1,0 +1,25 @@
+---
+users_001:
+  id: 1
+  email: "test@test.test"
+  first_name: "Ben"
+  last_name: "Dana"
+  role: "staff"
+users_002:
+  id: 2
+  email: "test2@test.test"
+  first_name: "Victor"
+  last_name: "Frankenstein"
+  role: 
+users_003:
+  id: 3
+  email: "test3@test.test"
+  first_name: "Vic"
+  last_name: "Franky"
+  role: 'creative'
+users_004:
+  id: 4
+  email: "test4@test.test"
+  first_name: "Vaac"
+  last_name: "Frinkle"
+  role: 'vehicle-creator;user-creator'
