@@ -1,5 +1,11 @@
+
 # cancancan_nested_auth
 Apply CanCanCan authorization checks on individual nested objects
+
+# Install (add to Gemfile)
+```
+gem 'cancancan_nested_auth', '~> 1'
+```
 
 # Init:
 Create init file: config/initializers/cancancan_nested_auth.rb and populate it with the following:
