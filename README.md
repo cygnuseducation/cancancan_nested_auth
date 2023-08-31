@@ -4,7 +4,7 @@ Apply CanCanCan authorization checks on individual nested objects
 
 # Install (add to Gemfile)
 ```
-gem 'cancancan_nested_auth', '~> 1'
+gem 'cancancan_nested_auth', '~> 0'
 ```
 
 # Init:
