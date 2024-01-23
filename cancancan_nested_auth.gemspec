@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{cancancan_nested_auth}
-  s.version = "0.0.1"
+  s.version = "0.1.0"
   s.date = %q{2023-08-29}
   s.authors = ["benjamin.dana.software.dev@gmail.com"]
   s.summary = %q{A Rails Service class that uses CanCan's authorization at nested associations' individual level}

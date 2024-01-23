@@ -23,6 +23,11 @@ CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
   # - :destroy if :_destroy parameter is present
   # - will use the action of the root object if set to false
   config.use_smart_nested_authorizations = true
+  # Set to `true` if you're nesting parameter data under the resource_key
+  # - i.e. params => {user: {email: 'test', name: 'fun'}}
+  # Set to `false` if resource parameter data is direct in in params.
+  # - i.e. params => {email: 'test', name: 'fun'}
+  config.use_resource_key_in_params = false
 end
 ```
 
