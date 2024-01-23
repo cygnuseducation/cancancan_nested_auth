@@ -19,6 +19,12 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
     expect(described_class).to eq(CanCanCan::AssignmentAndAuthorization)
   end
 
+  before do
+    CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
+      config.use_resource_key_in_params = false
+    end
+  end
+
   describe "staff user" do
     it "should update all attribs for a staff user (including vehicle)" do
       user = staff_user
@@ -38,24 +44,22 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
       expect(Part.find_by_name("Frame").brand_ids).to eq([])
 
       params = {
-        user: {
-          id: user.id,
-          first_name: "Benjamin",
-          last_name: "Denar",
-          email: "dontupdate@here.there",
-          group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
-          # was initially a create vehicle, but SQLite3 had issues with creating the vehicle ID.
-          vehicles_attributes: [{
-            id: update_vehicle.id,
-            make: 'makey',
-            model: 'modely',
-            parts_attributes: [{
-              id: update_part.id,
-              name: "Frame (warped)",
-              brand_ids: [Brand.find_by_name('Cromwell').id],
-            }],
+        id: user.id,
+        first_name: "Benjamin",
+        last_name: "Denar",
+        email: "dontupdate@here.there",
+        group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
+        # was initially a create vehicle, but SQLite3 had issues with creating the vehicle ID.
+        vehicles_attributes: [{
+          id: update_vehicle.id,
+          make: 'makey',
+          model: 'modely',
+          parts_attributes: [{
+            id: update_part.id,
+            name: "Frame (warped)",
+            brand_ids: [Brand.find_by_name('Cromwell').id],
           }],
-        }
+        }],
       }
 
       service = described_class.new(
@@ -95,22 +99,20 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
       expect(Part.find_by_name("Frame").brand_ids).to eq([])
 
       params = {
-        user: {
-          id: user.id,
-          first_name: "Benjamin",
-          last_name: "Denar",
-          email: "dontupdate@here.there",
-          group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
-          # was initially a create vehicle, but SQLite3 had issues with creating the vehicle ID.
-          vehicles_attributes: [{
-            make: 'makey',
-            model: 'modely',
-            parts_attributes: [{
-              name: "Frame (warped)",
-              brand_ids: [Brand.find_by_name('Cromwell').id],
-            }],
+        id: user.id,
+        first_name: "Benjamin",
+        last_name: "Denar",
+        email: "dontupdate@here.there",
+        group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
+        # was initially a create vehicle, but SQLite3 had issues with creating the vehicle ID.
+        vehicles_attributes: [{
+          make: 'makey',
+          model: 'modely',
+          parts_attributes: [{
+            name: "Frame (warped)",
+            brand_ids: [Brand.find_by_name('Cromwell').id],
           }],
-        }
+        }],
       }
 
       expect {
@@ -153,22 +155,20 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
       expect(Part.find_by_name("Frame").brand_ids).to eq([])
 
       params = {
-        user: {
-          id: user.id,
-          first_name: "Benjamin",
-          last_name: "Denar",
-          email: "dontupdate@here.there",
-          group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
-          # was initially a create vehicle, but SQLite3 had issues with creating the vehicle ID.
-          vehicles_attributes: [{
-            make: 'makey',
-            model: 'modely',
-            parts_attributes: [{
-              name: "Frame (warped)",
-              brand_ids: [Brand.find_by_name('Cromwell').id],
-            }],
+        id: user.id,
+        first_name: "Benjamin",
+        last_name: "Denar",
+        email: "dontupdate@here.there",
+        group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
+        # was initially a create vehicle, but SQLite3 had issues with creating the vehicle ID.
+        vehicles_attributes: [{
+          make: 'makey',
+          model: 'modely',
+          parts_attributes: [{
+            name: "Frame (warped)",
+            brand_ids: [Brand.find_by_name('Cromwell').id],
           }],
-        }
+        }],
       }
 
       CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
@@ -212,23 +212,21 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
       update_part    = update_vehicle.parts.find_by_name("Frame")
 
       params = {
-        user: {
-          id: user.id,
-          first_name: "Alen",
-          last_name: "Tom",
-          email: "dontupdate@here.there",
-          group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
-          vehicles_attributes: [{
-            id: update_vehicle.id,
-            make: 'makey',
-            model: 'modely',
-            parts_attributes: [{
-              id: update_part.id,
-              name: "Frame (warped)",
-              brand_ids: [Brand.find_by_name('Cromwell').id],
-            }],
+        id: user.id,
+        first_name: "Alen",
+        last_name: "Tom",
+        email: "dontupdate@here.there",
+        group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
+        vehicles_attributes: [{
+          id: update_vehicle.id,
+          make: 'makey',
+          model: 'modely',
+          parts_attributes: [{
+            id: update_part.id,
+            name: "Frame (warped)",
+            brand_ids: [Brand.find_by_name('Cromwell').id],
           }],
-        }
+        }],
       }
 
       service = described_class.new(
@@ -266,23 +264,21 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
       update_part    = update_vehicle.parts.find_by_name("Frame")
 
       params = {
-        user: {
-          id: normal_user.id,
-          first_name: "Alen",
-          last_name: "Tommy",
-          email: "dontupdate@here.there",
-          group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
-          vehicles_attributes: [{
-            id: update_vehicle.id,
-            make: 'makey',
-            model: 'modely',
-            parts_attributes: [{
-              id: update_part.id,
-              name: "Frame (warped)",
-              brand_ids: [Brand.find_by_name('Cromwell').id],
-            }],
+        id: normal_user.id,
+        first_name: "Alen",
+        last_name: "Tommy",
+        email: "dontupdate@here.there",
+        group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
+        vehicles_attributes: [{
+          id: update_vehicle.id,
+          make: 'makey',
+          model: 'modely',
+          parts_attributes: [{
+            id: update_part.id,
+            name: "Frame (warped)",
+            brand_ids: [Brand.find_by_name('Cromwell').id],
           }],
-        }
+        }],
       }
 
       service = described_class.new(
@@ -317,23 +313,21 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
       update_part    = update_vehicle.parts.find_by_name("Frame")
 
       params = {
-        user: {
-          id: normal_user.id,
-          first_name: "Alen",
-          last_name: "Tommy",
-          email: "dontupdate@here.there",
-          group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
-          vehicles_attributes: [{
-            id: update_vehicle.id,
-            make: 'makey',
-            model: 'modely',
-            parts_attributes: [{
-              id: update_part.id,
-              name: "Frame (warped)",
-              brand_ids: [Brand.find_by_name('Cromwell').id],
-            }],
+        id: normal_user.id,
+        first_name: "Alen",
+        last_name: "Tommy",
+        email: "dontupdate@here.there",
+        group_ids: user.group_ids + [Group.find_by_name("Notification List B").id],
+        vehicles_attributes: [{
+          id: update_vehicle.id,
+          make: 'makey',
+          model: 'modely',
+          parts_attributes: [{
+            id: update_part.id,
+            name: "Frame (warped)",
+            brand_ids: [Brand.find_by_name('Cromwell').id],
           }],
-        }
+        }],
       }
 
       CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
@@ -372,22 +366,20 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
       update_part    = update_vehicle.parts.find_by_name("Frame")
 
       params = {
-        user: {
-          first_name: "Alen",
-          last_name: "Tommy",
-          email: "aaga@here.there",
-          group_ids: [Group.find_by_name("Notification List B").id],
-          vehicles_attributes: [{
-            id: update_vehicle.id,
-            make: 'makey',
-            model: 'modely',
-            parts_attributes: [{
-              id: update_part.id,
-              name: "Frame (warped)",
-              brand_ids: [Brand.find_by_name('Cromwell').id],
-            }],
+        first_name: "Alen",
+        last_name: "Tommy",
+        email: "aaga@here.there",
+        group_ids: [Group.find_by_name("Notification List B").id],
+        vehicles_attributes: [{
+          id: update_vehicle.id,
+          make: 'makey',
+          model: 'modely',
+          parts_attributes: [{
+            id: update_part.id,
+            name: "Frame (warped)",
+            brand_ids: [Brand.find_by_name('Cromwell').id],
           }],
-        }
+        }],
       }
 
       service = described_class.new(
@@ -419,22 +411,20 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
       update_part    = update_vehicle.parts.find_by_name("Frame")
 
       params = {
-        user: {
-          first_name: "Alen",
-          last_name: "Tommy",
-          email: "aaga@here.there",
-          group_ids: [Group.find_by_name("Notification List B").id],
-          vehicles_attributes: [{
-            id: update_vehicle.id,
-            make: 'makey',
-            model: 'modely',
-            parts_attributes: [{
-              id: update_part.id,
-              name: "Frame (warped)",
-              brand_ids: [Brand.find_by_name('Cromwell').id],
-            }],
+        first_name: "Alen",
+        last_name: "Tommy",
+        email: "aaga@here.there",
+        group_ids: [Group.find_by_name("Notification List B").id],
+        vehicles_attributes: [{
+          id: update_vehicle.id,
+          make: 'makey',
+          model: 'modely',
+          parts_attributes: [{
+            id: update_part.id,
+            name: "Frame (warped)",
+            brand_ids: [Brand.find_by_name('Cromwell').id],
           }],
-        }
+        }],
       }
 
       CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
@@ -473,19 +463,17 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
       expect(Part.where(part_data).first).to eq(nil)
 
       params = {
-        user: {
-          first_name: "Alen",
-          last_name: "Tommy",
-          email: "aaga@here.there",
-          group_ids: [Group.find_by_name("Notification List B").id],
-          vehicles_attributes: [
-            create_vehicle_data.merge({
-              parts_attributes: [
-                part_data.merge({brand_ids: [Brand.find_by_name('Cromwell').id]})
-              ],
-            })
-          ],
-        }
+        first_name: "Alen",
+        last_name: "Tommy",
+        email: "aaga@here.there",
+        group_ids: [Group.find_by_name("Notification List B").id],
+        vehicles_attributes: [
+          create_vehicle_data.merge({
+            parts_attributes: [
+              part_data.merge({brand_ids: [Brand.find_by_name('Cromwell').id]})
+            ],
+          })
+        ],
       }
 
       CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
@@ -525,20 +513,18 @@ RSpec.describe CanCanCan::AssignmentAndAuthorization do
       expect(Part.where(part_data).first).to eq(nil)
 
       params = {
-        user: {
-          first_name: "Alen",
-          last_name: "Tommy",
-          email: "aaga@here.there",
-          group_ids: [Group.find_by_name("Notification List B").id],
-          vehicles_attributes: [{
-            make: 'makey',
-            model: 'modely',
-            parts_attributes: [{
-              name: "Frame (warped)",
-              brand_ids: [Brand.find_by_name('Cromwell').id],
-            }],
+        first_name: "Alen",
+        last_name: "Tommy",
+        email: "aaga@here.there",
+        group_ids: [Group.find_by_name("Notification List B").id],
+        vehicles_attributes: [{
+          make: 'makey',
+          model: 'modely',
+          parts_attributes: [{
+            name: "Frame (warped)",
+            brand_ids: [Brand.find_by_name('Cromwell').id],
           }],
-        }
+        }],
       }
 
       service = described_class.new(

@@ -16,6 +16,9 @@ module CanCanCan
       @ability = current_ability
       @parent_object = parent_object
       @params = params
+      if CanCanCan::NestedAssignmentAndAuthorization.configuration.use_resource_key_in_params
+        @params = @params[parent_object.model_name.singular.to_sym]
+      end
       if @params.kind_of?(ActionController::Parameters)
         @params = @params.permit!.to_h
       end

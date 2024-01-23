@@ -13,7 +13,7 @@ module CanCanCan
         # - i.e. params => {user: {email: 'test', name: 'fun'}}
         # Set to `false` if resource parameter data is direct in in params.
         # - i.e. params => {email: 'test', name: 'fun'}
-        @use_resource_key_in_params = false
+        @use_resource_key_in_params = true
       end
     end
   end
