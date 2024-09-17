@@ -1,0 +1,1 @@
+require_relative 'cancancan/nested_assignment_and_authorization'

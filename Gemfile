@@ -1,6 +1,6 @@
 # Used for development testing only!
 source 'https://rubygems.org'
-ruby '3.1.2'
+ruby '3.3.2'
 gem 'cancancan', '~> 3.5.0', '>= 3.5.0'
 gem 'actionpack', '> 1'
 

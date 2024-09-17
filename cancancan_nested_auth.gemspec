@@ -7,12 +7,7 @@ Gem::Specification.new do |s|
   s.authors = ["benjamin.dana.software.dev@gmail.com"]
   s.summary = %q{A Rails Service class that uses CanCan's authorization at nested associations' individual level}
   s.licenses = ['LGPL-3.0-only']
-  s.files = [
-    "lib/cancancan/version.rb",
-    "lib/cancancan/configuration.rb",
-    "lib/cancancan/services/assignment_and_authorization.rb",
-    "lib/cancancan_nested_assignment_and_authorization.rb",
-  ]
+  s.files = `git ls-files lib cancancan_nested_auth.gemspec`.split($INPUT_RECORD_SEPARATOR)
   s.require_paths = ["lib"]
   s.homepage = 'https://github.com/danabr75/cancancan_nested_auth'
   s.add_runtime_dependency 'cancancan', ['~> 3.5.0', '>= 3.5.0']

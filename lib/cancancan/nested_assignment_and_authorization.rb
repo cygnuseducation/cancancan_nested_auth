@@ -1,6 +1,6 @@
-require_relative 'cancancan/configuration'
-require_relative 'cancancan/services/assignment_and_authorization'
-require_relative 'cancancan/version'
+require_relative 'nested_assignment_and_authorization/configuration'
+require_relative 'nested_assignment_and_authorization/version'
+require_relative 'assignment_and_authorization'
 
 # include the extension 
 # ActiveRecord::Base.send(:include, Serializer::Concern)
