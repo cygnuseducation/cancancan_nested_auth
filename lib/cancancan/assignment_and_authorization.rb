@@ -131,7 +131,7 @@ module CanCanCan
                 parent.send(nested_attrib_key).build
               end
 
-      child_action = if ['1', 1, true].include?(attribs[:_destroy])
+      child_action = if ActiveRecord::Type::Boolean.new.cast(attribs[:_destroy])
                        :destroy
                      elsif child.new_record?
                        :create
