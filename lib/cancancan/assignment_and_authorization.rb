@@ -16,7 +16,7 @@ module CanCanCan
       @ability = current_ability
       @parent_object = parent_object
       @params = params
-      if CanCanCan::NestedAssignmentAndAuthorization.configuration.use_resource_key_in_params
+      if config.use_resource_key_in_params
         @params = @params[parent_object.model_name.singular.to_sym]
       end
       if @params.kind_of?(ActionController::Parameters)
@@ -27,18 +27,7 @@ module CanCanCan
 
     def call
       # Pre-assignment auth check
-      first_authorize = @ability.can?(@action_name, @parent_object)
-      unless first_authorize || CanCanCan::NestedAssignmentAndAuthorization.configuration.silence_raised_errors
-        raise CanCan::AccessDenied.new("Not authorized!", @action_name, @parent_object)
-      end
-
-      return false unless first_authorize
-
-      second_authorize = false
-
-      # sanitized_attribs = ActionController::Parameters.new(
-      #   @params
-      # ).permit(@ability.permitted_attributes(@action_name, @parent_object))
+      @ability.authorize!(@action_name, @parent_object)
 
       # sanitized_attribs will only contain attributes, not permitted associations
       sanitized_attribs = sanitize_parameters(@params, @ability.permitted_attributes(@action_name, @parent_object))
@@ -53,27 +42,27 @@ module CanCanCan
         # Associations
         instantiate_and_assign_nested_associations(
           @parent_object,
-          sanitize_parameters(sanitized_attribs, @parent_object.class.nested_attributes_options.keys.collect { |v| "#{v}_attributes".to_sym })
+          sanitize_parameters(
+            config.implicitly_allow_nested_attributes ? @params : sanitized_attribs,
+            @parent_object.class.nested_attributes_options.keys.collect { |v| "#{v}_attributes".to_sym }
+          )
         )
         # Post-assignment auth check
-        second_authorize = @ability.can?(@action_name, @parent_object)
-        unless second_authorize
-          # NOTE: Does not halt the controller process, just rolls back the DB
-          raise ActiveRecord::Rollback
-        end
+        @ability.authorize!(@action_name, @parent_object)
       end
 
-      unless second_authorize || CanCanCan::NestedAssignmentAndAuthorization.configuration.silence_raised_errors
-        raise CanCan::AccessDenied.new("Not authorized!", @action_name, @parent_object)
-      end
+      @parent_object.save
+    rescue CanCan::AccessDenied
+      raise unless config.silence_raised_errors
 
-      return false unless second_authorize
-
-      save_result = @parent_object.save
-      return save_result
+      false
     end
 
     private
+
+    def config
+      CanCanCan::NestedAssignmentAndAuthorization.configuration
+    end
 
     # recursive
     # - param_attribs are not sanitized, as we need to check 2 types of assoc permissions
@@ -88,26 +77,21 @@ module CanCanCan
 
         reflection = parent.class.reflect_on_association(nested_attrib_key)
         assoc_type = association_type(reflection)
-        assoc_klass = reflection.klass
 
         if assoc_type == :collection
           param_attribs[param_key].each do |attribs|
-            child = save_child_and_child_associations(parent, reflection, nested_attrib_key, attribs)
-            next unless child
-            parent.send(nested_attrib_key).send(:<<, child)
+            save_child_and_child_associations(parent, reflection, nested_attrib_key, attribs)
           end
         elsif assoc_type == :singular
           attribs = param_attribs[param_key]
           child = save_child_and_child_associations(parent, reflection, nested_attrib_key, attribs)
           parent.send("#{nested_attrib_key}=", child) if child
         else
-          # unknown, do nothing
+          raise "Unsupported association type: #{reflection.macro}"
         end
       end
-
     end
 
-    # NOT RECURSIVE
     def save_child_and_child_associations parent, reflection, nested_attrib_key, attribs
       assoc_klass = reflection.klass
       child, child_action = save_child(
@@ -118,82 +102,81 @@ module CanCanCan
           *assoc_klass.nested_attributes_options.keys.collect { |v| "#{v}_attributes".to_sym }
         )
       )
-      return nil unless child
 
-      sanitized_attribs = sanitize_parameters(attribs, @ability.permitted_attributes(child_action, child))
-      sanitized_attribs = sanitize_parameters(sanitized_attribs, assoc_klass.nested_attributes_options.keys.collect { |v| "#{v}_attributes".to_sym })
+      return child if child.nil? || child_action == :destroy
 
       # recursive call
       instantiate_and_assign_nested_associations(
         child,
-        sanitized_attribs
+        attribs
       )
-      return child
+
+      child
     end
 
     # NOT RECURSIVE!
     def save_child parent, reflection, nested_attrib_key, attribs
       # Check permission on parent
       assoc_klass = reflection.klass
-      assoc_primary_key = reflection.options[:primary_key]&.to_sym
-      assoc_primary_key ||= :id if assoc_klass.column_names.include?('id')
+      assoc_primary_key = assoc_klass.primary_key.to_sym
       assignment_exceptions = [
         :id,
         :_destroy,
         assoc_primary_key
       ] + assoc_klass.nested_attributes_options.keys.collect{ |v| "#{v}_attributes".to_sym }
 
-      # Had issues with nested records on other root objects not being able to be updated to be nested under this root object
-      if attribs[assoc_primary_key].present?
-        child = assoc_klass.where(assoc_primary_key => attribs[assoc_primary_key]).first
-      end
-      child ||= parent.send(nested_attrib_key).find_or_initialize_by(assoc_primary_key => attribs[assoc_primary_key])
+      child = if attribs[assoc_primary_key].present?
+                parent.send(nested_attrib_key).find_by!(assoc_primary_key => attribs[assoc_primary_key])
+              else
+                parent.send(nested_attrib_key).build
+              end
 
-      child_action = @action_name if !CanCanCan::NestedAssignmentAndAuthorization.configuration.use_smart_nested_authorizations
-      child_action ||= :destroy if reflection.options[:allow_destroy] && ['1', 1, true].include?(attribs[:_destroy])
-      child_action ||= :create if child.new_record?
-      child_action ||= :update
+      child_action = if ['1', 1, true].include?(attribs[:_destroy])
+                       :destroy
+                     elsif child.new_record?
+                       :create
+                     else
+                       :update
+                     end
+
+      return nil if child_action == :destroy && !parent.nested_attributes_options.dig(reflection.name, :allow_destroy)
 
       # Pre-assignment auth check
-      first_authorize = @ability.can?(child_action, child)
-      unless first_authorize || CanCanCan::NestedAssignmentAndAuthorization.configuration.silence_raised_errors
-        # TODO if debug
-        # puts "CanCan::AccessDenied.new('Not authorized!', #{child_action}, #{child.class.name})"
-        raise CanCan::AccessDenied.new("Not authorized!", child_action, child)
+      begin
+        @ability.authorize!(child_action, child)
+      rescue CanCan::AccessDenied
+        parent.send(nested_attrib_key).delete(child) if child.new_record?
+        raise
       end
 
-      unless first_authorize
-        parent.send(nested_attrib_key).delete(child)
-        return nil
+      if child_action == :destroy
+        parent.send(nested_attrib_key).destroy(child)
+        return child
       end
 
       sanitized_attribs = sanitize_parameters(attribs, @ability.permitted_attributes(child_action, child))
 
-      second_authorize = false
       ActiveRecord::Base.transaction do
         child.assign_attributes(sanitized_attribs.except(*assignment_exceptions))
+
         # Post-assignment auth check
-        second_authorize = @ability.can?(child_action, child)
-        unless second_authorize
-          # NOTE: Does not halt the controller process, just rolls back the DB
-          raise ActiveRecord::Rollback
+        begin
+          @ability.authorize!(child_action, child)
+        rescue CanCan::AccessDenied
+          parent.send(nested_attrib_key).delete(child) if child.new_record?
+          raise
         end
+
+        parent.association(nested_attrib_key).add_to_target(child, skip_callbacks: true) unless child.new_record?
       end
 
-      unless second_authorize || CanCanCan::NestedAssignmentAndAuthorization.configuration.silence_raised_errors
-        raise CanCan::AccessDenied.new("Not authorized!", child_action, child)
-      end
-
-      unless second_authorize
-        parent.send(nested_attrib_key).delete(child)
-        return nil
-      end
-
-      return child, child_action
+      [child, child_action]
+    rescue CanCan::AccessDenied
+      raise unless config.silence_raised_errors
     end
 
     # Can be overridden if needs be
-    def sanitize_parameters parameters, permit_list
+    def sanitize_parameters(parameters, permit_list)
       # ActionController::Parameters.new(
       #   parameters
       # ).permit(permit_list).to_h

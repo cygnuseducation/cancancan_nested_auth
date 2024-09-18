@@ -17,12 +17,6 @@ CanCanCan::NestedAssignmentAndAuthorization.configure do |config|
   # Allows for stopping unauthorized actions without raising errors
   # - Will let root object (and valid, other nested objects) save, even if an invalid nested object exists, if true
   config.silence_raised_errors = false
-  # Auto-determine what action to auth on nested associations (:create, :update, :destroy)
-  # - :create if is a new record
-  # - :update if pre-existing record
-  # - :destroy if :_destroy parameter is present
-  # - will use the action of the root object if set to false
-  config.use_smart_nested_authorizations = true
   # Set to `true` if you're nesting parameter data under the resource_key
   # - i.e. params => {user: {email: 'test', name: 'fun'}}
   # Set to `false` if resource parameter data is direct in in params.
